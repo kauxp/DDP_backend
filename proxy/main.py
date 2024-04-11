@@ -10,7 +10,6 @@ from proxy.helpers import CustomLogger
 from proxy.service import (
     get_airbyte_server_block_id,
     create_airbyte_server_block,
-    get_airbyte_connection_block_id,
     get_airbyte_connection_block,
     create_airbyte_connection_block,
     get_dbtcore_block_id,
@@ -267,17 +266,6 @@ async def post_airbyte_server(request: Request, payload: AirbyteServerCreate):
 
 
 # =============================================================================
-@app.get("/proxy/blocks/airbyte/connection/byblockname/{blockname}")
-async def get_airbyte_connection_by_blockname(request: Request, blockname):
-    """look up airbyte connection block by name and return block_id"""
-    block_id = await get_airbyte_connection_block_id(blockname)
-    if block_id is None:
-        logger.error("no airbyte connection block having name %s", blockname)
-        raise HTTPException(status_code=400, detail="no block having name " + blockname)
-    logger.info("blockname => blockid : %s => %s", blockname, block_id)
-    return {"block_id": block_id}
-
-
 @app.get("/proxy/blocks/airbyte/connection/byblockid/{blockid}")
 async def get_airbyte_connection_by_blockid(request: Request, blockid):
     """look up airbyte connection block by id and return block data"""

@@ -20,7 +20,6 @@ from proxy.service import (
     delete_airbyte_connection_block,
     delete_airbyte_server_block,
     delete_dbt_core_block,
-    get_airbyte_connection_block_id,
     get_airbyte_server_block_id,
     get_dbtcore_block_id,
     get_flow_runs_by_deployment_id,
@@ -79,14 +78,6 @@ class TestAirbyteConnection:
             res = await create_airbyte_connection_block(validated_payload)
             AirbyteConnectionBlockResponse(block_id=res)
             TestAirbyteConnection.block_id = res
-        except ValidationError as e:
-            raise ValueError(f"Response validation failed: {e.errors()}")
-
-    @pytest.mark.asyncio
-    async def test_get_airbyte_connection_block_id(self):
-        try:
-            res = await get_airbyte_connection_block_id(blockname="blockkkkk")
-            AirbyteServerBlockResponse(block_id=res)
         except ValidationError as e:
             raise ValueError(f"Response validation failed: {e.errors()}")
 

@@ -246,28 +246,6 @@ def delete_airbyte_server_block(blockid: str):
 
 
 # ================================================================================================
-async def get_airbyte_connection_block_id(blockname: str) -> str | None:
-    """look up airbyte connection block by name and return block_id"""
-    if not isinstance(blockname, str):
-        raise TypeError("blockname must be a string")
-    try:
-        block = await AirbyteConnection.load(blockname)
-        logger.info(
-            "found airbyte connection block named %s",
-            blockname,
-        )
-        return _block_id(block)
-    except ValueError:
-        logger.error(
-            "no airbyte connection block named %s",
-            blockname,
-        )
-        # pylint: disable=raise-missing-from
-        raise HTTPException(
-            status_code=404, detail=f"No airbyte connection block named {blockname}"
-        )
-
-
 async def get_airbyte_connection_block(blockid: str) -> dict:
     """look up and return block data for an airbyte connection"""
     if not isinstance(blockid, str):

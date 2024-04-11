@@ -28,7 +28,6 @@ from proxy.service import (
     delete_dbt_core_block,
     delete_shell_block,
     get_airbyte_connection_block,
-    get_airbyte_connection_block_id,
     get_airbyte_server_block_id,
     get_dbtcore_block_id,
     get_deployments_by_filter,
@@ -399,45 +398,6 @@ def test_update_airbyte_server_block_not_implemented():
     with pytest.raises(PrefectException) as excinfo:
         update_airbyte_server_block("blockname")
     assert str(excinfo.value) == "not implemented"
-
-
-# =================================================================================================
-
-
-@pytest.mark.asyncio
-@patch("proxy.service.AirbyteConnection.load", new_callable=AsyncMock)
-async def test_get_airbyte_connection_block_id_valid_blockname(mock_load):
-    class MockBlock:
-        def dict(self):
-            return {"_block_document_id": "expected_block_id"}
-
-    mock_load.return_value = MockBlock()
-    blockname = "valid_blockname"
-    result = await get_airbyte_connection_block_id(blockname)
-    assert result == "expected_block_id"
-    mock_load.assert_called_once_with(blockname)
-
-
-@pytest.mark.asyncio
-@patch("proxy.service.AirbyteConnection.load", new_callable=AsyncMock)
-async def test_get_airbyte_connection_block_id_invalid_blockname(mock_load):
-    mock_load.side_effect = ValueError(
-        "no airbyte connection block named invalid_blockname"
-    )
-    blockname = "invalid_blockname"
-    with pytest.raises(HTTPException) as excinfo:
-        await get_airbyte_connection_block_id(blockname)
-    assert excinfo.value.status_code == 404
-    assert excinfo.value.detail == f"No airbyte connection block named {blockname}"
-    mock_load.assert_called_once_with(blockname)
-
-
-@pytest.mark.asyncio
-async def test_get_airbyte_connection_block_id_non_string_blockname():
-    blockname = 1234
-    with pytest.raises(TypeError) as excinfo:
-        await get_airbyte_connection_block_id(blockname)
-    assert str(excinfo.value) == "blockname must be a string"
 
 
 # =================================================================================================

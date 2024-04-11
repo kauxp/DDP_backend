@@ -13,7 +13,6 @@ from proxy.main import (
     delete_block,
     delete_deployment,
     get_airbyte_connection_by_blockid,
-    get_airbyte_connection_by_blockname,
     get_airbyte_server,
     get_dbtcore,
     get_flow_run_logs_paginated,
@@ -392,38 +391,6 @@ async def test_post_airbyte_server_with_invalid_payload():
     with pytest.raises(TypeError) as excinfo:
         await post_airbyte_server(request, payload)
     assert excinfo.value.args[0] == "payload is invalid"
-
-
-@pytest.mark.asyncio
-async def test_get_airbyte_connection_by_blockname_success():
-    request = client.request("POST", "/")
-    with patch("proxy.main.get_airbyte_connection_block_id", return_value="12345"):
-        response = await get_airbyte_connection_by_blockname(request, "test_block")
-        assert response == {"block_id": "12345"}
-
-
-@pytest.mark.asyncio
-async def test_get_airbyte_connection_by_blockname_failure():
-    request = client.request("POST", "/")
-    with patch("proxy.main.get_airbyte_connection_block_id", return_value=None):
-        with pytest.raises(HTTPException) as excinfo:
-            await get_airbyte_connection_by_blockname(request, "test_block")
-        assert excinfo.value.status_code == 400
-        assert excinfo.value.detail == "no block having name test_block"
-
-
-@pytest.mark.asyncio
-async def test_get_airbyte_connection_by_blockname_invalid_blockname():
-    request = client.request("POST", "/")
-    with patch(
-        "proxy.main.get_airbyte_connection_block_id"
-    ) as get_airbyte_connection_block_id_mock:
-        get_airbyte_connection_block_id_mock.return_value = None
-        blockname = "invalid_blockname"
-        with pytest.raises(HTTPException) as exc_info:
-            await get_airbyte_connection_by_blockname(request, blockname)
-        assert exc_info.value.status_code == 400
-        assert exc_info.value.detail == "no block having name " + blockname
 
 
 @pytest.mark.asyncio
